@@ -11,6 +11,8 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
+
 @Component
 @EnableRetry
 public class PedidoConsumer {
@@ -30,6 +32,11 @@ public class PedidoConsumer {
         if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
             pedidoProducer.dlqSender(pedidoJson);
             throw new PedidoIncompletoException("Dados incompletos");
+        }
+        if(pedido.dataDoPedido().equals(LocalDate.parse("0001-01-01"))) {
+            pedidoProducer.dlqSender(pedidoJson);
+            System.out.println("sending");
+            return;
         }
         cozinhaService.realizarPedido(pedido);
 
