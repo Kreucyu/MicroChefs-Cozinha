@@ -1,5 +1,6 @@
 package com.cozinha.consumer;
 
+import com.cozinha.dto.DLQSupportDTO;
 import com.cozinha.dto.RecoveryPedidoDTO;
 import com.cozinha.exceptions.PedidoIncompletoException;
 import com.cozinha.producer.PedidoProducer;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 @EnableRetry
@@ -30,11 +32,27 @@ public class PedidoConsumer {
     public void receberPedido(@Payload String pedidoJson) {
         RecoveryPedidoDTO pedido = objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
         if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
-            pedidoProducer.dlqSender(pedidoJson);
-            throw new PedidoIncompletoException("Dados incompletos");
+            DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
+                    "PEDIDO_STATUS_PAGO",
+                    "cozinha-queue",
+                    "DATA_ERROR",
+                    "Dados incompletos",
+                    pedidoJson,
+                    LocalDateTime.now()
+            );
+            pedidoProducer.dlqSender(dlqSupportDTO);
+            return;
         }
         if(pedido.dataDoPedido().equals(LocalDate.parse("0001-01-01"))) {
-            pedidoProducer.dlqSender(pedidoJson);
+            DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
+                    "PEDIDO_STATUS_PAGO",
+                    "cozinha-queue",
+                    "DATA_ERROR",
+                    "Dados incompletos",
+                    pedidoJson,
+                    LocalDateTime.now()
+            );
+            pedidoProducer.dlqSender(dlqSupportDTO);
             System.out.println("sending");
             return;
         }

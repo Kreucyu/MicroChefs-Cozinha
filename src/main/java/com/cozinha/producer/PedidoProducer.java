@@ -1,5 +1,6 @@
 package com.cozinha.producer;
 
+import com.cozinha.dto.DLQSupportDTO;
 import com.cozinha.dto.UpdatePedidoDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,11 @@ public class PedidoProducer {
         );
     }
 
-    public void dlqSender(String pedidoJson) {
+    public void dlqSender(DLQSupportDTO dlqSupportDTO) {
         amqpTemplate.convertAndSend(
                 "dead-letter-exchange",
                 "dead-message",
-                objectMapper.writeValueAsString(pedidoJson)
+                objectMapper.writeValueAsString(dlqSupportDTO)
         );
     }
 }
