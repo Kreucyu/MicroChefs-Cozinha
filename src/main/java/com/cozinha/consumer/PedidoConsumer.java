@@ -28,7 +28,7 @@ public class PedidoConsumer {
     @Autowired
     private PedidoProducer pedidoProducer;
 
-    @RabbitListener(queues = { "cozinha-queue" })
+    @RabbitListener(queues = "cozinha-queue", ackMode = "MANUAL")
     public void receberPedido(@Payload String pedidoJson) {
         RecoveryPedidoDTO pedido = objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
         if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
