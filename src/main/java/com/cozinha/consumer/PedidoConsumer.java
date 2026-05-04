@@ -1,6 +1,6 @@
 package com.cozinha.consumer;
 
-import com.cozinha.dto.PedidoRecoveryDto;
+import com.cozinha.dto.RecoveryPedidoDTO;
 import com.cozinha.exceptions.PedidoIncompletoException;
 import com.cozinha.producer.PedidoProducer;
 import com.cozinha.service.CozinhaService;
@@ -28,7 +28,7 @@ public class PedidoConsumer {
 
     @RabbitListener(queues = { "cozinha-queue" })
     public void receberPedido(@Payload String pedidoJson) {
-        PedidoRecoveryDto pedido = objectMapper.readValue(pedidoJson, PedidoRecoveryDto.class);
+        RecoveryPedidoDTO pedido = objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
         if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
             pedidoProducer.dlqSender(pedidoJson);
             throw new PedidoIncompletoException("Dados incompletos");

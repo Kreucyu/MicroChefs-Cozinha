@@ -1,6 +1,6 @@
 package com.cozinha.dto;
 
-public record ItemPedidoRecoveryDto(
+public record RecoveryItemPedidoDTO(
         long idProduto,
         int quantidadeProduto
 ) {

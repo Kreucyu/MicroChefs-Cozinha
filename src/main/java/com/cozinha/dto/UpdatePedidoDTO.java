@@ -2,7 +2,7 @@ package com.cozinha.dto;
 
 import com.cozinha.entities.StatusPedido;
 
-public record UpdatePedidoDto(
+public record UpdatePedidoDTO(
         long id,
         StatusPedido statusPedido
 ) {

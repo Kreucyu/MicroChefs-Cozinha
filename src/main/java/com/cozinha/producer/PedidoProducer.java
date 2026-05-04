@@ -1,6 +1,6 @@
 package com.cozinha.producer;
 
-import com.cozinha.dto.UpdatePedidoDto;
+import com.cozinha.dto.UpdatePedidoDTO;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class PedidoProducer {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public void enviarAtualizacao(UpdatePedidoDto update) {
+    public void enviarAtualizacao(UpdatePedidoDTO update) {
         amqpTemplate.convertAndSend(
                 "pedido-exchange",
                 "pedido-key.update",
