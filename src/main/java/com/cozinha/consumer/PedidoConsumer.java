@@ -28,10 +28,26 @@ public class PedidoConsumer {
     @Autowired
     private PedidoProducer pedidoProducer;
 
+    private int maxRetry = 3;
+
     @RabbitListener(queues = "cozinha-queue", ackMode = "MANUAL")
     public void receberPedido(@Payload String pedidoJson) {
-        RecoveryPedidoDTO pedido = objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
-        if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
+        try {
+            RecoveryPedidoDTO pedido = objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
+
+            basicAck
+            cozinhaService.realizarPedido(pedido);
+        } catch () {
+
+        }
+
+
+
+
+    }
+
+    /*
+    if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
             DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
                     "PEDIDO_STATUS_PAGO",
                     "cozinha-queue",
@@ -56,7 +72,5 @@ public class PedidoConsumer {
             System.out.println("sending");
             return;
         }
-        cozinhaService.realizarPedido(pedido);
-
-    }
+     */
 }
