@@ -30,14 +30,12 @@ public class PedidoConsumer {
 
     private int maxRetry = 3;
 
-    @RabbitListener(queues = "cozinha-queue", ackMode = "MANUAL")
+    @RabbitListener(queues = "cozinha-queue")
     public void receberPedido(@Payload String pedidoJson) {
         try {
             RecoveryPedidoDTO pedido = objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
-
-            basicAck
             cozinhaService.realizarPedido(pedido);
-        } catch () {
+        } catch (RuntimeException e) {
 
         }
 
