@@ -6,8 +6,12 @@ import com.cozinha.dto.UpdatePedidoDTO;
 import com.cozinha.entities.StatusPedido;
 import com.cozinha.exceptions.InfraException;
 import com.cozinha.producer.PedidoProducer;
+import org.springframework.amqp.AmqpException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -17,27 +21,33 @@ public class CozinhaService {
     @Autowired
     private PedidoProducer pedidoProducer;
 
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000), retryFor = {
+            InfraException.class
+    })
     public void realizarPedido(RecoveryPedidoDTO pedido) {
-
-        System.out.println(pedido);
-
         try {
-            Thread.sleep(15000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println(pedido);
+
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            pedidoProducer.enviarAtualizacao(new UpdatePedidoDTO(pedido.id(), StatusPedido.EM_PREPARO));
+            System.out.println("Atualizado (EM_PREPARO)");
+
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            pedidoProducer.enviarAtualizacao(new UpdatePedidoDTO(pedido.id(), StatusPedido.PRONTO));
+            System.out.println("Atualizado (PRONTO)");
+        } catch (AmqpException e) {
+            throw new InfraException("Erro na conexão");
         }
-
-        pedidoProducer.enviarAtualizacao(new UpdatePedidoDTO(pedido.id(), StatusPedido.EM_PREPARO));
-        System.out.println("Atualizado (EM_PREPARO)");
-
-        try {
-            Thread.sleep(15000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        pedidoProducer.enviarAtualizacao(new UpdatePedidoDTO(pedido.id(), StatusPedido.PRONTO));
-        System.out.println("Atualizado (PRONTO)");
     }
 
     public void processarErro(Exception e, String JSON) {

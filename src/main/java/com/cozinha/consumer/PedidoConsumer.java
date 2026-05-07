@@ -43,32 +43,4 @@ public class PedidoConsumer {
             throw new ErroPedidoException("JSON contém dados inválidos");
         }
     }
-
-    /*
-    if(pedido.id() == 0 || pedido.itens() == null || pedido.dataDoPedido() == null) {
-            DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
-                    "PEDIDO_STATUS_PAGO",
-                    "cozinha-queue",
-                    "DATA_ERROR",
-                    "Dados incompletos",
-                    pedidoJson,
-                    LocalDateTime.now()
-            );
-            pedidoProducer.dlqSender(dlqSupportDTO);
-            return;
-        }
-        if(pedido.dataDoPedido().equals(LocalDate.parse("0001-01-01"))) {
-            DLQSupportDTO dlqSupportDTO = new DLQSupportDTO(
-                    "PEDIDO_STATUS_PAGO",
-                    "cozinha-queue",
-                    "DATA_ERROR",
-                    "Dados incompletos",
-                    pedidoJson,
-                    LocalDateTime.now()
-            );
-            pedidoProducer.dlqSender(dlqSupportDTO);
-            System.out.println("sending");
-            return;
-        }
-     */
 }
