@@ -24,9 +24,6 @@ public class PedidoConsumer {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private PedidoProducer pedidoProducer;
-
     @RabbitListener(queues = "cozinha-queue")
     public void receberPedido(@Payload String pedidoJSON) {
         try {
