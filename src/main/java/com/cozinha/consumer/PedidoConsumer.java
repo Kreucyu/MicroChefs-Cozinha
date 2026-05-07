@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
 
@@ -39,7 +40,7 @@ public class PedidoConsumer {
     private RecoveryPedidoDTO converterMensagemJSON(String pedidoJson) {
         try {
             return objectMapper.readValue(pedidoJson, RecoveryPedidoDTO.class);
-        } catch (InvalidFormatException e) {
+        } catch (InvalidFormatException | StreamReadException e) {
             throw new ErroPedidoException("JSON contém dados inválidos");
         }
     }

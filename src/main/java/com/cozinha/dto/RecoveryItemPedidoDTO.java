@@ -1,7 +1,9 @@
 package com.cozinha.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public record RecoveryItemPedidoDTO(
-        long idProduto,
-        int quantidadeProduto
+        @NotNull long idProduto,
+        @NotNull int quantidadeProduto
 ) {
 }
