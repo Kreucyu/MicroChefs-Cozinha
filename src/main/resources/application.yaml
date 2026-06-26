@@ -3,8 +3,7 @@ spring:
     name: cozinha
 
   rabbitmq:
-    port: 5672
-    addresses: amqps://voowobdz:oPXu8xSnc3nXS_GlD6QR2wg9nz1afCdY@jackal.rmq.cloudamqp.com/voowobdz
+    addresses: ${SPRING_RABBITMQ_ADDRESSES:amqps://voowobdz:oPXu8xSnc3nXS_GlD6QR2wg9nz1afCdY@jackal.rmq.cloudamqp.com/voowobdz}
     listener:
       simple:
         concurrency: 1
@@ -22,6 +21,19 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        cozinha.pedido.processamento: true
+      percentiles:
+        cozinha.pedido.processamento: 0.5, 0.95, 0.99
 
 server:
-  port: 9090
+  port: ${SERVER_PORT:9090}
+  shutdown: graceful
+
+spring.lifecycle.timeout-per-shutdown-phase: 30s

@@ -6,6 +6,8 @@ import com.cozinha.dto.UpdatePedidoDTO;
 import com.cozinha.entities.StatusPedido;
 import com.cozinha.exceptions.InfraException;
 import com.cozinha.producer.PedidoProducer;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.amqp.AmqpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
@@ -21,10 +23,14 @@ public class CozinhaService {
     @Autowired
     private PedidoProducer pedidoProducer;
 
+    @Autowired
+    private MeterRegistry meterRegistry;
+
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 5000), retryFor = {
             InfraException.class
     })
     public void realizarPedido(RecoveryPedidoDTO pedido) {
+        Timer.Sample sample = Timer.start(meterRegistry);
         try {
             System.out.println(pedido);
 
@@ -47,6 +53,9 @@ public class CozinhaService {
             System.out.println("Atualizado (PRONTO)");
         } catch (AmqpException e) {
             throw new InfraException("Erro na conexão");
+        } finally {
+            sample.stop(meterRegistry.timer("cozinha.pedido.processamento",
+                    "tipo", "pedido_completo"));
         }
     }
 
